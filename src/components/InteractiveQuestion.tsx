@@ -49,7 +49,7 @@ const InteractiveQuestion: React.FC<InteractiveQuestionProps> = ({
               onClick={() => handleOptionClick(index)}
               variant={isSelected ? "default" : "outline"}
               size="lg"
-              className={`h-auto p-4 text-left justify-start transition-all duration-300 ${
+              className={`h-auto p-4 text-left justify-start transition-all duration-300 whitespace-normal break-words ${
                 isSelected && isCorrect
                   ? 'bg-gradient-to-r from-green-500 to-green-600 text-white transform scale-105 animate-pulse' 
                   : isWrong
@@ -60,22 +60,29 @@ const InteractiveQuestion: React.FC<InteractiveQuestionProps> = ({
               }`}
               disabled={showFeedback}
             >
-              <div className="flex items-center gap-3 w-full">
-                {showFeedback && isSelected && (
-                  <>
-                    {isCorrect ? (
-                      <CheckCircle className="w-5 h-5 text-green-100" />
-                    ) : (
-                      <X className="w-5 h-5 text-red-100" />
-                    )}
-                  </>
-                )}
-                <span className="font-medium text-lg flex-1">
-                  {String.fromCharCode(65 + index)}) {option}
+              <div className="flex items-start gap-3 w-full">
+                <div className="flex-shrink-0 mt-1">
+                  {showFeedback && isSelected && (
+                    <>
+                      {isCorrect ? (
+                        <CheckCircle className="w-5 h-5 text-green-100" />
+                      ) : (
+                        <X className="w-5 h-5 text-red-100" />
+                      )}
+                    </>
+                  )}
+                </div>
+                <span className="font-medium text-base flex-1 leading-relaxed">
+                  <span className="font-bold text-lg mr-2">
+                    {String.fromCharCode(65 + index)})
+                  </span>
+                  {option}
                 </span>
-                {showFeedback && isCorrect && index === correctAnswer && (
-                  <Star className="w-5 h-5 text-yellow-300 animate-spin" />
-                )}
+                <div className="flex-shrink-0">
+                  {showFeedback && isCorrect && index === correctAnswer && (
+                    <Star className="w-5 h-5 text-yellow-300 animate-spin" />
+                  )}
+                </div>
               </div>
             </Button>
           );
@@ -94,7 +101,7 @@ const InteractiveQuestion: React.FC<InteractiveQuestionProps> = ({
               <div className="text-2xl mb-2">
                 {correctAnswer !== undefined && selectedOption === correctAnswer ? '🎉' : '🤔'}
               </div>
-              <div className="text-lg font-medium mb-3">
+              <div className="text-lg font-medium mb-3 leading-relaxed">
                 {explanations[selectedOption] || 'Obrigado pela participação!'}
               </div>
             </div>
@@ -107,10 +114,10 @@ const InteractiveQuestion: React.FC<InteractiveQuestionProps> = ({
                 <div className="text-lg font-medium text-blue-800 mb-2">
                   💡 A resposta ideal seria:
                 </div>
-                <div className="font-bold text-blue-900 mb-2">
+                <div className="font-bold text-blue-900 mb-2 leading-relaxed">
                   {String.fromCharCode(65 + correctAnswer)}) {options[correctAnswer]}
                 </div>
-                <div className="text-blue-700">
+                <div className="text-blue-700 leading-relaxed">
                   {explanations[correctAnswer]}
                 </div>
               </div>
@@ -119,7 +126,7 @@ const InteractiveQuestion: React.FC<InteractiveQuestionProps> = ({
 
           {/* Informação adicional educativa */}
           <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-xl border border-purple-200">
-            <div className="text-center text-sm text-purple-800">
+            <div className="text-center text-sm text-purple-800 leading-relaxed">
               <strong>💫 Dica para Detetives:</strong> Cada resposta nos ensina algo novo sobre como os antibióticos funcionam. 
               Continue explorando para desvendar todos os mistérios moleculares!
             </div>
