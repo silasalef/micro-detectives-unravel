@@ -21,10 +21,67 @@ const InteractiveQuestion: React.FC<InteractiveQuestionProps> = ({
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
 
+  // Função para tocar sons usando Web Audio API
+  const playSound = (frequency: number, duration: number, type: 'success' | 'error') => {
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    
+    if (type === 'success') {
+      // Som alegre - acordes ascendentes
+      [523.25, 659.25, 783.99].forEach((freq, index) => {
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.setValueAtTime(freq, audioContext.currentTime);
+        oscillator.type = 'sine';
+        
+        gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0.1, audioContext.currentTime + 0.01);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration + (index * 0.1));
+        
+        oscillator.start(audioContext.currentTime + (index * 0.1));
+        oscillator.stop(audioContext.currentTime + duration + (index * 0.1));
+      });
+    } else {
+      // Som triste - acordes descendentes
+      [400, 350, 300].forEach((freq, index) => {
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.setValueAtTime(freq, audioContext.currentTime);
+        oscillator.type = 'sawtooth';
+        
+        gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0.08, audioContext.currentTime + 0.01);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration + (index * 0.15));
+        
+        oscillator.start(audioContext.currentTime + (index * 0.15));
+        oscillator.stop(audioContext.currentTime + duration + (index * 0.15));
+      });
+    }
+  };
+
   const handleOptionClick = (optionIndex: number) => {
     setSelectedOption(optionIndex);
     setShowFeedback(true);
     const isCorrect = correctAnswer !== undefined && optionIndex === correctAnswer;
+    
+    // Tocar som baseado na resposta
+    try {
+      if (isCorrect) {
+        playSound(523.25, 0.6, 'success'); // Dó maior - som alegre
+      } else {
+        playSound(300, 0.8, 'error'); // Som mais grave e triste
+      }
+    } catch (error) {
+      console.log('Audio não disponível neste navegador');
+    }
+    
     onResponse(options[optionIndex], isCorrect);
   };
 

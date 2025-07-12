@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -16,6 +15,7 @@ const Index = () => {
   const [correctAnswers, setCorrectAnswers] = useState(0);
   const [totalQuestions, setTotalQuestions] = useState(0);
   const [showCharacter, setShowCharacter] = useState(false);
+  const [questionAnswered, setQuestionAnswered] = useState(false);
 
   const slides = [
     {
@@ -200,6 +200,7 @@ const Index = () => {
   const nextSlide = () => {
     if (currentSlide < slides.length - 1) {
       setCurrentSlide(currentSlide + 1);
+      setQuestionAnswered(false); // Reset para próxima pergunta
       setShowCharacter(true);
       setTimeout(() => setShowCharacter(false), 3000);
     }
@@ -208,10 +209,12 @@ const Index = () => {
   const prevSlide = () => {
     if (currentSlide > 0) {
       setCurrentSlide(currentSlide - 1);
+      setQuestionAnswered(false); // Reset para pergunta anterior
     }
   };
 
   const handleResponse = (response: string, isCorrect: boolean) => {
+    setQuestionAnswered(true);
     setTotalQuestions(prev => prev + 1);
     if (isCorrect) {
       setCorrectAnswers(prev => prev + 1);
@@ -222,6 +225,8 @@ const Index = () => {
   };
 
   const currentSlideData = slides[currentSlide];
+  const isQuestionSlide = currentSlideData.type === 'question';
+  const canAdvance = !isQuestionSlide || questionAnswered;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
@@ -487,15 +492,26 @@ const Index = () => {
             ))}
           </div>
 
-          <Button
-            onClick={nextSlide}
-            disabled={currentSlide === slides.length - 1}
-            size="lg"
-            className="flex items-center gap-2 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600"
-          >
-            {currentSlide === slides.length - 1 ? 'Finalizar' : 'Próximo'}
-            <ChevronRight className="w-5 h-5" />
-          </Button>
+          <div className="flex items-center gap-4">
+            {isQuestionSlide && !questionAnswered && (
+              <div className="text-sm text-orange-600 font-medium bg-orange-100 px-3 py-1 rounded-full">
+                📝 Responda a pergunta para continuar
+              </div>
+            )}
+            <Button
+              onClick={nextSlide}
+              disabled={currentSlide === slides.length - 1 || !canAdvance}
+              size="lg"
+              className={`flex items-center gap-2 transition-all duration-300 ${
+                canAdvance 
+                  ? 'bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600' 
+                  : 'bg-gray-400 cursor-not-allowed'
+              }`}
+            >
+              {currentSlide === slides.length - 1 ? 'Finalizar' : 'Próximo'}
+              <ChevronRight className="w-5 h-5" />
+            </Button>
+          </div>
         </div>
       </div>
     </div>
