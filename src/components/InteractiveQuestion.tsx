@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, X, Star } from 'lucide-react';
+import { CheckCircle, X, Star, Sparkles, Zap } from 'lucide-react';
 
 interface InteractiveQuestionProps {
   question: string;
@@ -20,14 +20,26 @@ const InteractiveQuestion: React.FC<InteractiveQuestionProps> = ({
 }) => {
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
+  const [particles, setParticles] = useState<{id: number, x: number, y: number}[]>([]);
+
+  // Função para criar partículas de celebração
+  const createParticles = () => {
+    const newParticles = Array.from({ length: 12 }, (_, i) => ({
+      id: Date.now() + i,
+      x: Math.random() * 100,
+      y: Math.random() * 100
+    }));
+    setParticles(newParticles);
+    setTimeout(() => setParticles([]), 2000);
+  };
 
   // Função para tocar sons usando Web Audio API
   const playSound = (frequency: number, duration: number, type: 'success' | 'error') => {
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
     
     if (type === 'success') {
-      // Som alegre - acordes ascendentes
-      [523.25, 659.25, 783.99].forEach((freq, index) => {
+      // Som alegre - acordes ascendentes com mais complexidade
+      [523.25, 659.25, 783.99, 1046.50].forEach((freq, index) => {
         const oscillator = audioContext.createOscillator();
         const gainNode = audioContext.createGain();
         
@@ -38,15 +50,15 @@ const InteractiveQuestion: React.FC<InteractiveQuestionProps> = ({
         oscillator.type = 'sine';
         
         gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-        gainNode.gain.linearRampToValueAtTime(0.1, audioContext.currentTime + 0.01);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration + (index * 0.1));
+        gainNode.gain.linearRampToValueAtTime(0.15, audioContext.currentTime + 0.01);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration + (index * 0.08));
         
-        oscillator.start(audioContext.currentTime + (index * 0.1));
-        oscillator.stop(audioContext.currentTime + duration + (index * 0.1));
+        oscillator.start(audioContext.currentTime + (index * 0.08));
+        oscillator.stop(audioContext.currentTime + duration + (index * 0.08));
       });
     } else {
-      // Som triste - acordes descendentes
-      [400, 350, 300].forEach((freq, index) => {
+      // Som triste - acordes descendentes mais elaborados
+      [400, 350, 300, 250].forEach((freq, index) => {
         const oscillator = audioContext.createOscillator();
         const gainNode = audioContext.createGain();
         
@@ -57,11 +69,11 @@ const InteractiveQuestion: React.FC<InteractiveQuestionProps> = ({
         oscillator.type = 'sawtooth';
         
         gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-        gainNode.gain.linearRampToValueAtTime(0.08, audioContext.currentTime + 0.01);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration + (index * 0.15));
+        gainNode.gain.linearRampToValueAtTime(0.1, audioContext.currentTime + 0.01);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration + (index * 0.12));
         
-        oscillator.start(audioContext.currentTime + (index * 0.15));
-        oscillator.stop(audioContext.currentTime + duration + (index * 0.15));
+        oscillator.start(audioContext.currentTime + (index * 0.12));
+        oscillator.stop(audioContext.currentTime + duration + (index * 0.12));
       });
     }
   };
@@ -71,12 +83,16 @@ const InteractiveQuestion: React.FC<InteractiveQuestionProps> = ({
     setShowFeedback(true);
     const isCorrect = correctAnswer !== undefined && optionIndex === correctAnswer;
     
+    if (isCorrect) {
+      createParticles();
+    }
+    
     // Tocar som baseado na resposta
     try {
       if (isCorrect) {
-        playSound(523.25, 0.6, 'success'); // Dó maior - som alegre
+        playSound(523.25, 0.8, 'success');
       } else {
-        playSound(300, 0.8, 'error'); // Som mais grave e triste
+        playSound(300, 1.0, 'error');
       }
     } catch (error) {
       console.log('Audio não disponível neste navegador');
@@ -86,11 +102,29 @@ const InteractiveQuestion: React.FC<InteractiveQuestionProps> = ({
   };
 
   return (
-    <div className="space-y-6">
-      <div className="text-lg text-gray-700 bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-2xl border-2 border-yellow-300">
-        <p className="text-center font-medium flex items-center justify-center gap-3">
-          <span className="text-2xl">🎯</span>
+    <div className="space-y-6 relative">
+      {/* Partículas de celebração */}
+      {particles.map(particle => (
+        <div
+          key={particle.id}
+          className="absolute pointer-events-none z-50"
+          style={{
+            left: `${particle.x}%`,
+            top: `${particle.y}%`,
+            animation: 'float 2s ease-out forwards'
+          }}
+        >
+          <Sparkles className="w-6 h-6 text-yellow-400 animate-spin" />
+        </div>
+      ))}
+
+      <div className="text-lg text-gray-700 bg-gradient-to-br from-yellow-50 via-orange-50 to-pink-50 p-6 rounded-2xl border-2 border-yellow-300 shadow-lg relative overflow-hidden">
+        {/* Efeito de brilho animado */}
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse"></div>
+        <p className="text-center font-medium flex items-center justify-center gap-3 relative z-10">
+          <span className="text-3xl animate-bounce">🎯</span>
           {question}
+          <span className="text-2xl animate-pulse">✨</span>
         </p>
       </div>
 
@@ -106,38 +140,52 @@ const InteractiveQuestion: React.FC<InteractiveQuestionProps> = ({
               onClick={() => handleOptionClick(index)}
               variant={isSelected ? "default" : "outline"}
               size="lg"
-              className={`h-auto p-4 text-left justify-start transition-all duration-300 whitespace-normal break-words ${
+              className={`h-auto p-4 text-left justify-start transition-all duration-500 whitespace-normal break-words relative overflow-hidden group ${
                 isSelected && isCorrect
-                  ? 'bg-gradient-to-r from-green-500 to-green-600 text-white transform scale-105 animate-pulse' 
+                  ? 'bg-gradient-to-br from-green-400 via-green-500 to-green-600 text-white transform scale-105 shadow-2xl animate-pulse border-green-300' 
                   : isWrong
-                  ? 'bg-gradient-to-r from-red-400 to-red-500 text-white'
+                  ? 'bg-gradient-to-br from-red-400 via-red-500 to-red-600 text-white shadow-xl border-red-300'
                   : isSelected
-                  ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white transform scale-105'
-                  : 'hover:bg-purple-50 hover:border-purple-300 hover:scale-105'
+                  ? 'bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600 text-white transform scale-105 shadow-xl border-blue-300'
+                  : 'hover:bg-gradient-to-br hover:from-purple-50 hover:via-pink-50 hover:to-blue-50 hover:border-purple-400 hover:scale-105 hover:shadow-lg border-2 border-gray-200'
               }`}
               disabled={showFeedback}
             >
-              <div className="flex items-start gap-3 w-full">
+              {/* Efeito de shimmer para botões não selecionados */}
+              {!isSelected && (
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+              )}
+              
+              <div className="flex items-start gap-3 w-full relative z-10">
                 <div className="flex-shrink-0 mt-1">
                   {showFeedback && isSelected && (
                     <>
                       {isCorrect ? (
-                        <CheckCircle className="w-5 h-5 text-green-100" />
+                        <div className="relative">
+                          <CheckCircle className="w-6 h-6 text-green-100 animate-bounce" />
+                          <div className="absolute -inset-1 bg-green-400/30 rounded-full animate-ping"></div>
+                        </div>
                       ) : (
-                        <X className="w-5 h-5 text-red-100" />
+                        <div className="relative">
+                          <X className="w-6 h-6 text-red-100 animate-pulse" />
+                          <div className="absolute -inset-1 bg-red-400/30 rounded-full animate-ping"></div>
+                        </div>
                       )}
                     </>
                   )}
                 </div>
                 <span className="font-medium text-base flex-1 leading-relaxed">
-                  <span className="font-bold text-lg mr-2">
+                  <span className="font-bold text-xl mr-3 drop-shadow-sm">
                     {String.fromCharCode(65 + index)})
                   </span>
                   {option}
                 </span>
                 <div className="flex-shrink-0">
                   {showFeedback && isCorrect && index === correctAnswer && (
-                    <Star className="w-5 h-5 text-yellow-300 animate-spin" />
+                    <div className="relative">
+                      <Star className="w-6 h-6 text-yellow-300 animate-spin" />
+                      <Zap className="w-4 h-4 text-yellow-400 absolute -top-1 -right-1 animate-bounce" />
+                    </div>
                   )}
                 </div>
               </div>
@@ -149,16 +197,18 @@ const InteractiveQuestion: React.FC<InteractiveQuestionProps> = ({
       {showFeedback && selectedOption !== null && (
         <div className="space-y-4 animate-slide-up">
           {/* Feedback específico para a resposta selecionada */}
-          <div className={`p-6 rounded-2xl border-2 ${
+          <div className={`p-6 rounded-2xl border-2 shadow-xl relative overflow-hidden ${
             correctAnswer !== undefined && selectedOption === correctAnswer
-              ? 'bg-gradient-to-r from-green-100 to-emerald-100 border-green-300'
-              : 'bg-gradient-to-r from-orange-100 to-yellow-100 border-orange-300'
+              ? 'bg-gradient-to-br from-green-100 via-emerald-100 to-teal-100 border-green-400'
+              : 'bg-gradient-to-br from-orange-100 via-yellow-100 to-amber-100 border-orange-400'
           }`}>
-            <div className="text-center">
-              <div className="text-2xl mb-2">
+            {/* Efeito de brilho de fundo */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-pulse"></div>
+            <div className="text-center relative z-10">
+              <div className="text-3xl mb-3 animate-bounce">
                 {correctAnswer !== undefined && selectedOption === correctAnswer ? '🎉' : '🤔'}
               </div>
-              <div className="text-lg font-medium mb-3 leading-relaxed">
+              <div className="text-lg font-medium mb-3 leading-relaxed drop-shadow-sm">
                 {explanations[selectedOption] || 'Obrigado pela participação!'}
               </div>
             </div>
@@ -166,15 +216,17 @@ const InteractiveQuestion: React.FC<InteractiveQuestionProps> = ({
 
           {/* Mostrar a resposta correta se a pessoa errou */}
           {correctAnswer !== undefined && selectedOption !== correctAnswer && (
-            <div className="bg-gradient-to-r from-blue-100 to-cyan-100 p-6 rounded-2xl border-2 border-blue-300">
-              <div className="text-center">
-                <div className="text-lg font-medium text-blue-800 mb-2">
-                  💡 A resposta ideal seria:
+            <div className="bg-gradient-to-br from-blue-100 via-cyan-100 to-sky-100 p-6 rounded-2xl border-2 border-blue-400 shadow-xl relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse"></div>
+              <div className="text-center relative z-10">
+                <div className="text-lg font-medium text-blue-800 mb-2 flex items-center justify-center gap-2">
+                  <span className="text-2xl animate-pulse">💡</span>
+                  A resposta ideal seria:
                 </div>
-                <div className="font-bold text-blue-900 mb-2 leading-relaxed">
+                <div className="font-bold text-blue-900 mb-3 leading-relaxed text-xl drop-shadow-sm">
                   {String.fromCharCode(65 + correctAnswer)}) {options[correctAnswer]}
                 </div>
-                <div className="text-blue-700 leading-relaxed">
+                <div className="text-blue-700 leading-relaxed font-medium">
                   {explanations[correctAnswer]}
                 </div>
               </div>
@@ -182,14 +234,27 @@ const InteractiveQuestion: React.FC<InteractiveQuestionProps> = ({
           )}
 
           {/* Informação adicional educativa */}
-          <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-xl border border-purple-200">
-            <div className="text-center text-sm text-purple-800 leading-relaxed">
-              <strong>💫 Dica para Detetives:</strong> Cada resposta nos ensina algo novo sobre como os antibióticos funcionam. 
+          <div className="bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-50 p-4 rounded-xl border-2 border-purple-300 shadow-lg relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse"></div>
+            <div className="text-center text-sm text-purple-800 leading-relaxed relative z-10">
+              <strong className="flex items-center justify-center gap-2 text-base mb-2">
+                <span className="animate-spin">💫</span>
+                Dica para Detetives:
+                <span className="animate-bounce">🔬</span>
+              </strong>
+              Cada resposta nos ensina algo novo sobre como os antibióticos funcionam. 
               Continue explorando para desvendar todos os mistérios moleculares!
             </div>
           </div>
         </div>
       )}
+
+      <style jsx>{`
+        @keyframes float {
+          0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+          100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+        }
+      `}</style>
     </div>
   );
 };
