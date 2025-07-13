@@ -36,20 +36,20 @@ const GameScore: React.FC<GameScoreProps> = ({ score, correct, total }) => {
 
   return (
     <div className="flex items-center gap-3 bg-white/95 backdrop-blur-sm rounded-xl p-3 border-2 border-purple-300 shadow-lg relative overflow-hidden">
-      {/* Efeito de brilho de fundo */}
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse"></div>
+      {/* Efeito de brilho de fundo sutil */}
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent opacity-50"></div>
       
       <div className={`p-2 bg-gradient-to-r ${getScoreColor()} rounded-lg text-white relative z-10 shadow-md`}>
-        <ScoreIcon className="w-5 h-5 animate-pulse" />
+        <ScoreIcon className="w-5 h-5" />
       </div>
       
       <div className="text-sm relative z-10">
         <div className="font-bold text-gray-800 flex items-center gap-2">
-          <Star className="w-4 h-4 text-yellow-500 animate-spin" />
+          <Star className="w-4 h-4 text-yellow-500" />
           <span className="drop-shadow-sm">{score} pts</span>
         </div>
         <div className="text-xs text-gray-600 flex items-center gap-1">
-          <Target className="w-3 h-3 animate-bounce" />
+          <Target className="w-3 h-3" />
           <span>{correct}/{total} ({accuracy}%)</span>
         </div>
       </div>
@@ -58,11 +58,11 @@ const GameScore: React.FC<GameScoreProps> = ({ score, correct, total }) => {
         {getTitle()}
       </div>
 
-      {/* Partículas de celebração para pontuações altas */}
+      {/* Partículas de celebração sutis para pontuações altas */}
       {score >= 300 && (
         <>
-          <div className="absolute top-1 right-1 w-1 h-1 bg-yellow-400 rounded-full animate-ping"></div>
-          <div className="absolute bottom-1 left-1 w-1 h-1 bg-green-400 rounded-full animate-ping" style={{animationDelay: '0.5s'}}></div>
+          <div className="absolute top-1 right-1 w-1 h-1 bg-yellow-400 rounded-full opacity-60"></div>
+          <div className="absolute bottom-1 left-1 w-1 h-1 bg-green-400 rounded-full opacity-60"></div>
         </>
       )}
     </div>
